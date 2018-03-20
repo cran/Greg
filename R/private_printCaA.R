@@ -1,12 +1,12 @@
 #' Adds the ordering, references, and descriptions
 #' 
 #' This is a wrapper function around some more basic functions that
-#' \code{\link{printCrudeAndAdjustedModel}} uses.
+#' \code{\link{printCrudeAndAdjustedModel}()} uses.
 #'
-#' @param x The main value matrix from the \code{\link{prCaPrepareCrudeAndAdjusted}}
+#' @param x The main value matrix from the \code{\link{prCaPrepareCrudeAndAdjusted}()}
 #' @param model The model
 #' @param order A vector A vector with regular expressions for each group.
-#' @param var_order The output from the \code{\link{prMapVariable2Name}}
+#' @param var_order The output from the \code{\link{prMapVariable2Name}()}
 #' @param ds The dataset from the model
 #'  
 #' @return The reordered groups as a matrix
@@ -34,7 +34,7 @@ prCaReorderReferenceDescribe <- function (
   if (!missing(add_references)){
     var_order <- attr(reordered_groups, "var_order")
 
-    if(add_references == TRUE){
+    if(is.logical(add_references) && add_references == TRUE){
       reordered_groups <- 
         prCaAddRefAndStat(model = model,
                           var_order = var_order,
@@ -837,7 +837,7 @@ prCaSetRownames <- function (reordered_groups,
           cn <- rn[var_order[[name]]$location[i]]
           # Remove the variable name
           cn <- gsub(name, "", cn, fixed = TRUE)
-          if (!grepl(new_names[i], cn, fixed = TRUE)){
+          if (!grepl(tolower(new_names[i]), tolower(cn), ignore.case = TRUE)){
             name_check_ok <- FALSE
             warning("Tried to set the rownames for the variable's '", name ,"'",
                     " to the name of its level '", new_names[i] ,"'",

@@ -56,7 +56,7 @@ function as I've found that exponentiated ticks/clips/zero effect are more
 difficult to for non-statisticians and there are sometimes issues with rounding
 the tick marks properly.}
 
-\item{...}{Passed to \code{\link[forestplot]{forestplot}}}
+\item{...}{Passed to \code{\link[forestplot]{forestplot}()}}
 }
 \description{
 Creates a composite from different regression objects into
@@ -107,7 +107,3 @@ forestplotCombineRegrObj (
 
 par(org.par)
 }
-\seealso{
-Other \code{\link[forestplot]{forestplot}} wrappers: \code{\link{forestplotRegrObj}}
-}
-

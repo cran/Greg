@@ -12,7 +12,8 @@ timeSplitter(data, by, time_var, event_var, event_start_status,
 option.}
 
 \item{by}{The time period that you want to split the dataset by. The size of the variable
-must be in proportion to the the \code{time_var}.}
+must be in proportion to the the \code{time_var}. The by variable can also be a vector
+for each time split, useful if the effect has large varyations over time.}
 
 \item{time_var}{The name of the main time variable in the dataset. This variable
 must be a numeric variable.}
@@ -34,7 +35,7 @@ entire dataset by setting this variable. See detailed description below.}
 }
 \description{
 If we have a violation of the cox proprtional hazards assumption we need to
-split an individual's followup time into several.See vignette("timeSplitter", package="Greg")
+split an individual's followup time into several. See \code{vignette("timeSplitter", package="Greg")}
 for a detailed description.
 }
 \details{
@@ -51,6 +52,7 @@ we set the \code{time_offset = 4}. In the outputted dataset the smallest
 generally want to look at those that survived the start date, e.g. if a 
 patient dies on the 4-year mark we would not include him/her in our study.
 }
+
 \examples{
 test_data <- data.frame(
   id = 1:4,
@@ -68,4 +70,3 @@ timeSplitter(test_data, .5,
              time_related_vars = c("age", "date"),
              event_var = "event")
 }
-

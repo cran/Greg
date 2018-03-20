@@ -1,7 +1,7 @@
 #' A function for splitting a time according to time periods
 #' 
 #' If we have a violation of the cox proprtional hazards assumption we need to
-#' split an individual's followup time into several.See vignette("timeSplitter", package="Greg")
+#' split an individual's followup time into several. See \code{vignette("timeSplitter", package="Greg")}
 #' for a detailed description.
 #' 
 #' \emph{Important note:} The time variables must have the same time unit. I.e. function can not dedu
@@ -19,7 +19,8 @@
 #' @param data The dataset that you want to split according to the \code{time_var}
 #'  option.
 #' @param by The time period that you want to split the dataset by. The size of the variable
-#'  must be in proportion to the the \code{time_var}.
+#'  must be in proportion to the the \code{time_var}. The by variable can also be a vector
+#'  for each time split, useful if the effect has large varyations over time.
 #' @param event_var The event variable
 #' @param event_start_status The start status of the event status, e.g. "Alive"
 #' @param time_var The name of the main time variable in the dataset. This variable
