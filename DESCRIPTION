@@ -1,6 +1,6 @@
 Package: Greg
-Version: 1.2.1
-Date: 2018-03-20
+Version: 1.2.2
+Date: 2018-05-21
 Title: Regression Helper Functions
 Maintainer: Max Gordon <max@gforge.se>
 Authors@R: c(person("Max", "Gordon", email = "max@gforge.se", role = c("aut", "cre")),
@@ -21,8 +21,8 @@ Suggests: boot, testthat, cmprsk, survival, dplyr, ggplot2, parallel
 VignetteBuilder: knitr
 RoxygenNote: 6.0.1
 NeedsCompilation: no
-Packaged: 2018-03-20 14:25:02 UTC; Max
+Packaged: 2018-04-21 19:33:34 UTC; max
 Author: Max Gordon [aut, cre],
   Reinhard Seifert [aut] (Author of original plotHR)
 Repository: CRAN
-Date/Publication: 2018-03-20 18:11:15 UTC
+Date/Publication: 2018-04-21 20:12:20 UTC
