@@ -1,8 +1,8 @@
-## ----message=FALSE, warning=FALSE, echo=FALSE----------------------------
+## ----message=FALSE, warning=FALSE, echo=FALSE---------------------------------
 knitr::opts_chunk$set(message=FALSE, warning=FALSE)
 library(magrittr)
 
-## ----Coxph_tt_example, eval=FALSE----------------------------------------
+## ----Coxph_tt_example, eval=FALSE---------------------------------------------
 #  library(survival)
 #  coxph(Surv(time, event) ~ age + sex +
 #          type_of_surgery + tt(type_of_surgery) +
@@ -26,7 +26,7 @@ library(magrittr)
 #          }
 #        ))
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  library(plyr)
 #  library(magrittr)
 #  models <-
@@ -41,7 +41,7 @@ library(magrittr)
 #            coxph(Surv(Start_time, End_time, status) ~ age + sex + treatment, data = data)
 #          })
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(Greg)
 test_data <- data.frame(
   id = 1:4,
@@ -57,7 +57,7 @@ test_data <- data.frame(
 
 test_data$time_str <- sprintf("0 to %.1f", test_data$time)
 
-## ----Display_data, echo=FALSE, fig.height=4, fig.width=7-----------------
+## ----Display_data, echo=FALSE, fig.height=4, fig.width=7----------------------
 library(grid)
 library(magrittr)
 getMaxWidth <- function(vars){
@@ -186,7 +186,7 @@ for (i in 1:nrow(test_data)){
 }
 upViewport(2)
 
-## ----Split_data----------------------------------------------------------
+## ----Split_data---------------------------------------------------------------
 library(dplyr)
 split_data <- 
   test_data %>% 
@@ -199,7 +199,7 @@ split_data <-
 
 knitr::kable(head(split_data, 10))
 
-## ----Complex_split_plot, fig.height=6, fig.width=7, echo=FALSE-----------
+## ----Complex_split_plot, fig.height=6, fig.width=7, echo=FALSE----------------
 # Do the actual plot
 plotTitleAndPushVPs("Time spans with split")
 
@@ -241,7 +241,7 @@ for (i in 1:nrow(split_data)){
 upViewport(2)
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # First we start with loading the dataset
 data("melanoma", package = "boot")
 
@@ -263,7 +263,7 @@ melanoma %<>%
                      labels = c("Female", "Male")))
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(survival)
 regular_model <- coxph(Surv(time, status == "Died from melanoma") ~
                          age + sex + year + thickness + ulcer,
@@ -271,7 +271,7 @@ regular_model <- coxph(Surv(time, status == "Died from melanoma") ~
                        x = TRUE, y = TRUE)
 summary(regular_model)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 spl_melanoma <-
   melanoma %>% 
   timeSplitter(by = .5,
@@ -287,7 +287,7 @@ interval_model <-
 
 summary(interval_model)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(htmlTable)
 cbind(Regular = coef(regular_model),
       Interval = coef(interval_model),
@@ -295,29 +295,29 @@ cbind(Regular = coef(regular_model),
   txtRound(digits = 5) %>% 
   knitr::kable(align = "r")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 cox.zph(regular_model) %>% 
   extract2("table") %>% 
   txtRound(digits = 2) %>% 
   knitr::kable(align = "r")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 time_int_model <- 
   update(interval_model,
          .~.+thickness:Start_time)
 summary(time_int_model)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # First we need to manually add an interaction term
 spl_melanoma %<>% 
   mutate(thickness_start = thickness * Start_time) 
 anova(time_int_model,
       update(time_int_model, .~.+I(thickness_start^2)))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 update(time_int_model, .~.-thickness:Start_time+pspline(thickness_start))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Lets create an evenly distributed categorical thickness variable
 # and interactions
 spl_melanoma %<>% 
@@ -373,7 +373,7 @@ new_data %<>%
          lower = exp(fit - 1.96*se.fit))
 
 
-## ----fig.width=8, fig.height=6-------------------------------------------
+## ----fig.width=8, fig.height=6------------------------------------------------
 library(ggplot2)
 new_data %>% 
   mutate(adapted_risk = sapply(risk, function(x) min(max(2^-4, x), 2^5)),

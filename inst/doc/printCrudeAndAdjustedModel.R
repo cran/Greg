@@ -1,4 +1,4 @@
-## ---- message=FALSE------------------------------------------------------
+## ---- message=FALSE-----------------------------------------------------------
 library(datasets)
 data(mtcars)
 mtcars$am <- factor(mtcars$am, labels = c("Automatic", "Manual"))
@@ -6,7 +6,7 @@ fit <- lm(mpg ~ cyl + disp + hp + am, data = mtcars)
 library(Greg)
 printCrudeAndAdjustedModel(fit)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 printCrudeAndAdjustedModel(fit, 
                            digits = 1, 
                            add_references = TRUE,
@@ -22,7 +22,7 @@ printCrudeAndAdjustedModel(fit,
   return(n)
 })
 
-## ---- message=FALSE------------------------------------------------------
+## ---- message=FALSE-----------------------------------------------------------
 library(Hmisc)
 label(mtcars$disp) <- "Displacement (cu.in)"
 label(mtcars$cyl) <- "No. cylinders"
@@ -33,7 +33,7 @@ printCrudeAndAdjustedModel(fit,
                            digits = 1, 
                            add_references = TRUE)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 fit_mpg <- lm(mpg ~ cyl + disp + hp + am, data = mtcars)
 fit_weight <- lm(wt ~ cyl + disp + hp + am, data = mtcars)
 p_mpg <- printCrudeAndAdjustedModel(fit_mpg, digits = 1, add_references = TRUE)
@@ -45,12 +45,12 @@ cbind("Miles per gallon" = p_mpg,
       "Weight (1000 lbs)" = p_weight)
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 p_mpg[,1:2]
 
 p_mpg[1:2,]
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library("survival")
 
 set.seed(10)
