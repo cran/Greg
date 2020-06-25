@@ -1,6 +1,6 @@
 Package: Greg
-Version: 1.3.3
-Date: 2020-03-05
+Version: 1.3.4
+Date: 2020-06-24
 Title: Regression Helper Functions
 Maintainer: Max Gordon <max@gforge.se>
 Authors@R: c(person("Max", "Gordon", email = "max@gforge.se", role = c("aut", "cre")),
@@ -15,16 +15,16 @@ License: GPL (>= 3)
 URL: http://gforge.se
 Biarch: yes
 Encoding: UTF-8
-Imports: Hmisc, stringr, rms, sandwich, stats, nlme, methods,
-        htmlTable, magrittr, knitr, Epi, utils, graphics, grDevices
+Imports: Hmisc, stringr, rms, sandwich, stats, nlme, methods, htmlTable
+        (>= 2.0.0), magrittr, knitr, Epi, utils, graphics, grDevices
 Depends: forestplot, Gmisc (>= 1.0.3)
 Suggests: boot, testthat, cmprsk, survival, dplyr, ggplot2, parallel,
-        rmarkdown
+        rmarkdown, rmeta
 VignetteBuilder: knitr
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 NeedsCompilation: no
-Packaged: 2020-03-06 16:35:33 UTC; max
+Packaged: 2020-06-24 22:08:46 UTC; max
 Author: Max Gordon [aut, cre],
   Reinhard Seifert [aut] (Author of original plotHR)
 Repository: CRAN
-Date/Publication: 2020-03-06 17:00:02 UTC
+Date/Publication: 2020-06-25 04:30:03 UTC

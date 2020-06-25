@@ -33,6 +33,18 @@ printCrudeAndAdjustedModel(fit,
                            digits = 1, 
                            add_references = TRUE)
 
+## ----styling_with_addHtmlTableStyle-------------------------------------------
+library(htmlTable)
+
+printCrudeAndAdjustedModel(fit, 
+                           digits = 1, 
+                           add_references = TRUE) %>% 
+  # We can also style the output as shown here
+  addHtmlTableStyle(css.rgroup = "")
+
+## ----theming------------------------------------------------------------------
+setHtmlTableTheme(css.rgroup = "")
+
 ## -----------------------------------------------------------------------------
 fit_mpg <- lm(mpg ~ cyl + disp + hp + am, data = mtcars)
 fit_weight <- lm(wt ~ cyl + disp + hp + am, data = mtcars)
@@ -67,13 +79,12 @@ ds <- data.frame(
 
 library(survival)
 library(splines)
-fit <- coxph(Surv(ds$ftime, ds$fstatus == 1) ~ x1 + ns(x2, 4) + x3 + strata(x4), data=ds)
+fit <- coxph(Surv(ds$ftime, ds$fstatus == 1) ~ x1 + ns(x2, 4) + x3 + strata(x4), data = ds)
 
 printCrudeAndAdjustedModel(fit, add_references = TRUE)
 
+## -----------------------------------------------------------------------------
 # Note that the crude is with the strata
 a <- getCrudeAndAdjustedModelData(fit)
-a["x3", "Crude"] == 
-  exp(coef(coxph(Surv(ds$ftime, ds$fstatus == 1) ~ x3 + 
-                   strata(x4), data=ds)))
+a["x3", "Crude"] == exp(coef(coxph(Surv(ds$ftime, ds$fstatus == 1) ~ x3 + strata(x4), data = ds)))
 

@@ -12,34 +12,64 @@
 
 <meta name="author" content="Max Gordon" />
 
-<meta name="date" content="2020-03-06" />
+<meta name="date" content="2020-06-25" />
 
 <title>Print crude and adjusted</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
 
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -48,9 +78,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -301,7 +331,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Print crude and adjusted</h1>
 <h4 class="author">Max Gordon</h4>
-<h4 class="date">2020-03-06</h4>
+<h4 class="date">2020-06-25</h4>
 
 
 
@@ -314,12 +344,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="the-printcrudeandadjusted-function" class="section level2">
 <h2>The <code>printCrudeAndAdjusted</code> function</h2>
 <p>The <code>printCrudeAndAdjusted</code> was designed for this purpose. It provides a table with the <code>coef</code> and <code>confint</code> estimates for the full model, then reruns for each variable through an <code>update</code> call on the model providing <code>outcome ~ variable</code> as input. Below is a basic example:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(datasets)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">data</span>(mtcars)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">mtcars<span class="op">$</span>am &lt;-<span class="st"> </span><span class="kw">factor</span>(mtcars<span class="op">$</span>am, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;Automatic&quot;</span>, <span class="st">&quot;Manual&quot;</span>))</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">fit &lt;-<span class="st"> </span><span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>cyl <span class="op">+</span><span class="st"> </span>disp <span class="op">+</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>am, <span class="dt">data =</span> mtcars)</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw">library</span>(Greg)</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="kw">printCrudeAndAdjustedModel</span>(fit)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(datasets)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">data</span>(mtcars)</span>
+<span id="cb1-3"><a href="#cb1-3"></a>mtcars<span class="op">$</span>am &lt;-<span class="st"> </span><span class="kw">factor</span>(mtcars<span class="op">$</span>am, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;Automatic&quot;</span>, <span class="st">&quot;Manual&quot;</span>))</span>
+<span id="cb1-4"><a href="#cb1-4"></a>fit &lt;-<span class="st"> </span><span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>cyl <span class="op">+</span><span class="st"> </span>disp <span class="op">+</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>am, <span class="dt">data =</span> mtcars)</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="kw">library</span>(Greg)</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="kw">printCrudeAndAdjustedModel</span>(fit)</span></code></pre></div>
 <table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
 <thead>
 <tr>
@@ -336,22 +366,22 @@ Adjusted
 </th>
 </tr>
 <tr>
-<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
+<th style="border-bottom: 1px solid grey; font-weight: 900; text-align: center;">
 Variable
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
 Coef
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
-<th style="border-bottom: 1px solid grey;" colspan="1">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;" colspan="1">
  
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
 Coef
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
 </tr>
@@ -367,7 +397,7 @@ Coef
 <td style="text-align: center;">
 17.92 to 22.26
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -387,7 +417,7 @@ cyl
 <td style="text-align: center;">
 -3.53 to -2.22
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -407,7 +437,7 @@ disp
 <td style="text-align: center;">
 -0.05 to -0.03
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -427,7 +457,7 @@ hp
 <td style="text-align: center;">
 -0.09 to -0.05
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -447,7 +477,7 @@ Manual
 <td style="border-bottom: 2px solid grey; text-align: center;">
 3.64 to 10.85
 </td>
-<td style="border-bottom: 2px solid grey;" colspan="1">
+<td style="border-bottom: 2px solid grey; text-align: center;" colspan="1">
  
 </td>
 <td style="border-bottom: 2px solid grey; text-align: right;">
@@ -460,20 +490,20 @@ Manual
 </tbody>
 </table>
 <p>As the variable names often aren’t that pretty you can use the <code>rowname.fn</code> in order to get the row names desired. Here’s a simple substitution example together with some limits to the digits, and a reference group:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">printCrudeAndAdjustedModel</span>(fit, </a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">                           <span class="dt">digits =</span> <span class="dv">1</span>, </a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">                           <span class="dt">add_references =</span> <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">                           <span class="dt">rowname.fn =</span> <span class="cf">function</span>(n){</a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">  <span class="cf">if</span> (n <span class="op">==</span><span class="st"> &quot;disp&quot;</span>)</a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">    <span class="kw">return</span>(<span class="st">&quot;Displacement (cu.in.)&quot;</span>)</a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">  <span class="cf">if</span> (n <span class="op">==</span><span class="st"> &quot;hp&quot;</span>)</a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">    <span class="kw">return</span>(<span class="st">&quot;Gross horsepower&quot;</span>)</a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">  <span class="cf">if</span> (n <span class="op">==</span><span class="st"> &quot;cyl&quot;</span>)</a>
-<a class="sourceLine" id="cb2-10" data-line-number="10">    <span class="kw">return</span>(<span class="st">&quot;No. cylinders&quot;</span>)</a>
-<a class="sourceLine" id="cb2-11" data-line-number="11">  <span class="cf">if</span> (n <span class="op">==</span><span class="st"> &quot;am&quot;</span>)</a>
-<a class="sourceLine" id="cb2-12" data-line-number="12">    <span class="kw">return</span>(<span class="st">&quot;Transmission&quot;</span>)</a>
-<a class="sourceLine" id="cb2-13" data-line-number="13">  <span class="kw">return</span>(n)</a>
-<a class="sourceLine" id="cb2-14" data-line-number="14">})</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">printCrudeAndAdjustedModel</span>(fit, </span>
+<span id="cb2-2"><a href="#cb2-2"></a>                           <span class="dt">digits =</span> <span class="dv">1</span>, </span>
+<span id="cb2-3"><a href="#cb2-3"></a>                           <span class="dt">add_references =</span> <span class="ot">TRUE</span>,</span>
+<span id="cb2-4"><a href="#cb2-4"></a>                           <span class="dt">rowname.fn =</span> <span class="cf">function</span>(n){</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="cf">if</span> (n <span class="op">==</span><span class="st"> &quot;disp&quot;</span>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="kw">return</span>(<span class="st">&quot;Displacement (cu.in.)&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="cf">if</span> (n <span class="op">==</span><span class="st"> &quot;hp&quot;</span>)</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    <span class="kw">return</span>(<span class="st">&quot;Gross horsepower&quot;</span>)</span>
+<span id="cb2-9"><a href="#cb2-9"></a>  <span class="cf">if</span> (n <span class="op">==</span><span class="st"> &quot;cyl&quot;</span>)</span>
+<span id="cb2-10"><a href="#cb2-10"></a>    <span class="kw">return</span>(<span class="st">&quot;No. cylinders&quot;</span>)</span>
+<span id="cb2-11"><a href="#cb2-11"></a>  <span class="cf">if</span> (n <span class="op">==</span><span class="st"> &quot;am&quot;</span>)</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    <span class="kw">return</span>(<span class="st">&quot;Transmission&quot;</span>)</span>
+<span id="cb2-13"><a href="#cb2-13"></a>  <span class="kw">return</span>(n)</span>
+<span id="cb2-14"><a href="#cb2-14"></a>})</span></code></pre></div>
 <table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
 <thead>
 <tr>
@@ -490,22 +520,22 @@ Adjusted
 </th>
 </tr>
 <tr>
-<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
+<th style="border-bottom: 1px solid grey; font-weight: 900; text-align: center;">
 Variable
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
 Coef
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
-<th style="border-bottom: 1px solid grey;" colspan="1">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;" colspan="1">
  
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
 Coef
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
 </tr>
@@ -521,7 +551,7 @@ Coef
 <td style="text-align: center;">
 17.9 to 22.3
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -541,7 +571,7 @@ No. cylinders
 <td style="text-align: center;">
 -3.5 to -2.2
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -561,7 +591,7 @@ Displacement (cu.in.)
 <td style="text-align: center;">
 -0.1 to 0.0
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -581,7 +611,7 @@ Gross horsepower
 <td style="text-align: center;">
 -0.1 to 0.0
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -592,7 +622,7 @@ Gross horsepower
 </td>
 </tr>
 <tr>
-<td colspan="6" style>
+<td colspan="6" style="font-weight: 900;">
 Transmission
 </td>
 </tr>
@@ -606,7 +636,7 @@ Transmission
 <td style="text-align: center;">
 ref
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -626,7 +656,7 @@ ref
 <td style="border-bottom: 2px solid grey; text-align: center;">
 3.6 to 10.8
 </td>
-<td style="border-bottom: 2px solid grey;" colspan="1">
+<td style="border-bottom: 2px solid grey; text-align: center;" colspan="1">
  
 </td>
 <td style="border-bottom: 2px solid grey; text-align: right;">
@@ -639,15 +669,15 @@ ref
 </tbody>
 </table>
 <p>You can achieve the same effect with the <code>label</code> function in the <code>Hmisc</code> package:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">library</span>(Hmisc)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw">label</span>(mtcars<span class="op">$</span>disp) &lt;-<span class="st"> &quot;Displacement (cu.in)&quot;</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw">label</span>(mtcars<span class="op">$</span>cyl) &lt;-<span class="st"> &quot;No. cylinders&quot;</span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="kw">label</span>(mtcars<span class="op">$</span>hp) &lt;-<span class="st"> &quot;Gross horsepower&quot;</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="kw">label</span>(mtcars<span class="op">$</span>am) &lt;-<span class="st"> &quot;Transmission&quot;</span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="kw">printCrudeAndAdjustedModel</span>(fit, </a>
-<a class="sourceLine" id="cb3-8" data-line-number="8">                           <span class="dt">digits =</span> <span class="dv">1</span>, </a>
-<a class="sourceLine" id="cb3-9" data-line-number="9">                           <span class="dt">add_references =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">library</span>(Hmisc)</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">label</span>(mtcars<span class="op">$</span>disp) &lt;-<span class="st"> &quot;Displacement (cu.in)&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="kw">label</span>(mtcars<span class="op">$</span>cyl) &lt;-<span class="st"> &quot;No. cylinders&quot;</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="kw">label</span>(mtcars<span class="op">$</span>hp) &lt;-<span class="st"> &quot;Gross horsepower&quot;</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="kw">label</span>(mtcars<span class="op">$</span>am) &lt;-<span class="st"> &quot;Transmission&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="kw">printCrudeAndAdjustedModel</span>(fit, </span>
+<span id="cb3-8"><a href="#cb3-8"></a>                           <span class="dt">digits =</span> <span class="dv">1</span>, </span>
+<span id="cb3-9"><a href="#cb3-9"></a>                           <span class="dt">add_references =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
 <thead>
 <tr>
@@ -664,22 +694,22 @@ Adjusted
 </th>
 </tr>
 <tr>
-<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
+<th style="border-bottom: 1px solid grey; font-weight: 900; text-align: center;">
 Variable
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
 Coef
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
-<th style="border-bottom: 1px solid grey;" colspan="1">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;" colspan="1">
  
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
 Coef
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
 </tr>
@@ -695,7 +725,7 @@ Coef
 <td style="text-align: center;">
 17.9 to 22.3
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -715,7 +745,7 @@ No. cylinders
 <td style="text-align: center;">
 -3.5 to -2.2
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -735,7 +765,7 @@ Displacement (cu.in)
 <td style="text-align: center;">
 -0.1 to 0.0
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -755,7 +785,179 @@ Gross horsepower
 <td style="text-align: center;">
 -0.1 to 0.0
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
+ 
+</td>
+<td style="text-align: right;">
+0.0
+</td>
+<td style="text-align: center;">
+-0.1 to 0.0
+</td>
+</tr>
+<tr>
+<td colspan="6" style="font-weight: 900;">
+Transmission
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+  Automatic
+</td>
+<td style="text-align: right;">
+0.0
+</td>
+<td style="text-align: center;">
+ref
+</td>
+<td style="text-align: center;" colspan="1">
+ 
+</td>
+<td style="text-align: right;">
+0.0
+</td>
+<td style="text-align: center;">
+ref
+</td>
+</tr>
+<tr>
+<td style="border-bottom: 2px solid grey; text-align: left;">
+  Manual
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+7.2
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+3.6 to 10.8
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;" colspan="1">
+ 
+</td>
+<td style="border-bottom: 2px solid grey; text-align: right;">
+3.4
+</td>
+<td style="border-bottom: 2px solid grey; text-align: center;">
+0.5 to 6.4
+</td>
+</tr>
+</tbody>
+</table>
+<p>If we want to style the table we can use <code>htmlTable::addHtmlTableStyle</code></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">library</span>(htmlTable)</span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="kw">printCrudeAndAdjustedModel</span>(fit, </span>
+<span id="cb4-4"><a href="#cb4-4"></a>                           <span class="dt">digits =</span> <span class="dv">1</span>, </span>
+<span id="cb4-5"><a href="#cb4-5"></a>                           <span class="dt">add_references =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="st">  </span><span class="co"># We can also style the output as shown here</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="st">  </span><span class="kw">addHtmlTableStyle</span>(<span class="dt">css.rgroup =</span> <span class="st">&quot;&quot;</span>)</span></code></pre></div>
+<table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
+<thead>
+<tr>
+<th style="border-top: 2px solid grey;">
+</th>
+<th colspan="2" style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Crude
+</th>
+<th style="border-top: 2px solid grey;; border-bottom: hidden;">
+ 
+</th>
+<th colspan="2" style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+Adjusted
+</th>
+</tr>
+<tr>
+<th style="border-bottom: 1px solid grey; font-weight: 900; text-align: center;">
+Variable
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
+Coef
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
+2.5 % to 97.5 %
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;" colspan="1">
+ 
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
+Coef
+</th>
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
+2.5 % to 97.5 %
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">
+(Intercept)
+</td>
+<td style="text-align: right;">
+20.1
+</td>
+<td style="text-align: center;">
+17.9 to 22.3
+</td>
+<td style="text-align: center;" colspan="1">
+ 
+</td>
+<td style="text-align: right;">
+30.5
+</td>
+<td style="text-align: center;">
+24.6 to 36.4
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+No. cylinders
+</td>
+<td style="text-align: right;">
+-2.9
+</td>
+<td style="text-align: center;">
+-3.5 to -2.2
+</td>
+<td style="text-align: center;" colspan="1">
+ 
+</td>
+<td style="text-align: right;">
+-0.8
+</td>
+<td style="text-align: center;">
+-2.4 to 0.7
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+Displacement (cu.in)
+</td>
+<td style="text-align: right;">
+0.0
+</td>
+<td style="text-align: center;">
+-0.1 to 0.0
+</td>
+<td style="text-align: center;" colspan="1">
+ 
+</td>
+<td style="text-align: right;">
+0.0
+</td>
+<td style="text-align: center;">
+0.0 to 0.0
+</td>
+</tr>
+<tr>
+<td style="text-align: left;">
+Gross horsepower
+</td>
+<td style="text-align: right;">
+-0.1
+</td>
+<td style="text-align: center;">
+-0.1 to 0.0
+</td>
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -780,7 +982,7 @@ Transmission
 <td style="text-align: center;">
 ref
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -800,7 +1002,7 @@ ref
 <td style="border-bottom: 2px solid grey; text-align: center;">
 3.6 to 10.8
 </td>
-<td style="border-bottom: 2px solid grey;" colspan="1">
+<td style="border-bottom: 2px solid grey; text-align: center;" colspan="1">
  
 </td>
 <td style="border-bottom: 2px solid grey; text-align: right;">
@@ -812,16 +1014,18 @@ ref
 </tr>
 </tbody>
 </table>
+<p>The style can be added to all the tables by setting a theme option and activating the style for all the table elements.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">setHtmlTableTheme</span>(<span class="dt">css.rgroup =</span> <span class="st">&quot;&quot;</span>)</span></code></pre></div>
 </div>
 <div id="binding-columnsrows" class="section level2">
 <h2>Binding columns/rows</h2>
 <p>The returned variable from <code>printCrudeAndAdjustedModel</code> works just like any matrix, i.e. you can bind it both on rows and on columns:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">fit_mpg &lt;-<span class="st"> </span><span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>cyl <span class="op">+</span><span class="st"> </span>disp <span class="op">+</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>am, <span class="dt">data =</span> mtcars)</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">fit_weight &lt;-<span class="st"> </span><span class="kw">lm</span>(wt <span class="op">~</span><span class="st"> </span>cyl <span class="op">+</span><span class="st"> </span>disp <span class="op">+</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>am, <span class="dt">data =</span> mtcars)</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">p_mpg &lt;-<span class="st"> </span><span class="kw">printCrudeAndAdjustedModel</span>(fit_mpg, <span class="dt">digits =</span> <span class="dv">1</span>, <span class="dt">add_references =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">p_weight &lt;-<span class="st"> </span><span class="kw">printCrudeAndAdjustedModel</span>(fit_weight, <span class="dt">digits =</span> <span class="dv">1</span>, <span class="dt">add_references =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="kw">rbind</span>(<span class="st">&quot;Miles per gallon&quot;</span> =<span class="st"> </span>p_mpg, </a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">      <span class="st">&quot;Weight (1000 lbs)&quot;</span> =<span class="st"> </span>p_weight)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>fit_mpg &lt;-<span class="st"> </span><span class="kw">lm</span>(mpg <span class="op">~</span><span class="st"> </span>cyl <span class="op">+</span><span class="st"> </span>disp <span class="op">+</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>am, <span class="dt">data =</span> mtcars)</span>
+<span id="cb6-2"><a href="#cb6-2"></a>fit_weight &lt;-<span class="st"> </span><span class="kw">lm</span>(wt <span class="op">~</span><span class="st"> </span>cyl <span class="op">+</span><span class="st"> </span>disp <span class="op">+</span><span class="st"> </span>hp <span class="op">+</span><span class="st"> </span>am, <span class="dt">data =</span> mtcars)</span>
+<span id="cb6-3"><a href="#cb6-3"></a>p_mpg &lt;-<span class="st"> </span><span class="kw">printCrudeAndAdjustedModel</span>(fit_mpg, <span class="dt">digits =</span> <span class="dv">1</span>, <span class="dt">add_references =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb6-4"><a href="#cb6-4"></a>p_weight &lt;-<span class="st"> </span><span class="kw">printCrudeAndAdjustedModel</span>(fit_weight, <span class="dt">digits =</span> <span class="dv">1</span>, <span class="dt">add_references =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="kw">rbind</span>(<span class="st">&quot;Miles per gallon&quot;</span> =<span class="st"> </span>p_mpg, </span>
+<span id="cb6-6"><a href="#cb6-6"></a>      <span class="st">&quot;Weight (1000 lbs)&quot;</span> =<span class="st"> </span>p_weight)</span></code></pre></div>
 <table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
 <thead>
 <tr>
@@ -838,22 +1042,22 @@ Adjusted
 </th>
 </tr>
 <tr>
-<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
+<th style="border-bottom: 1px solid grey; font-weight: 900; text-align: center;">
 Variable
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
 Coef
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
-<th style="border-bottom: 1px solid grey;" colspan="1">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;" colspan="1">
  
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
 Coef
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
 </tr>
@@ -874,7 +1078,7 @@ Miles per gallon
 <td style="text-align: center;">
 17.9 to 22.3
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -894,7 +1098,7 @@ No. cylinders
 <td style="text-align: center;">
 -3.5 to -2.2
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -914,7 +1118,7 @@ Displacement (cu.in)
 <td style="text-align: center;">
 -0.1 to 0.0
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -934,7 +1138,7 @@ Gross horsepower
 <td style="text-align: center;">
 -0.1 to 0.0
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -959,7 +1163,7 @@ Transmission
 <td style="text-align: center;">
 ref
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -979,7 +1183,7 @@ ref
 <td style="text-align: center;">
 3.6 to 10.8
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -1004,7 +1208,7 @@ Weight (1000 lbs)
 <td style="text-align: center;">
 2.9 to 3.6
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -1024,7 +1228,7 @@ No. cylinders
 <td style="text-align: center;">
 0.3 to 0.6
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -1044,7 +1248,7 @@ Displacement (cu.in)
 <td style="text-align: center;">
 0.0 to 0.0
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -1064,7 +1268,7 @@ Gross horsepower
 <td style="text-align: center;">
 0.0 to 0.0
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -1089,7 +1293,7 @@ Transmission
 <td style="text-align: center;">
 ref
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -1109,7 +1313,7 @@ ref
 <td style="border-bottom: 2px solid grey; text-align: center;">
 -1.9 to -0.8
 </td>
-<td style="border-bottom: 2px solid grey;" colspan="1">
+<td style="border-bottom: 2px solid grey; text-align: center;" colspan="1">
  
 </td>
 <td style="border-bottom: 2px solid grey; text-align: right;">
@@ -1121,36 +1325,36 @@ ref
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">cbind</span>(<span class="st">&quot;Miles per gallon&quot;</span> =<span class="st"> </span>p_mpg, </a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">      <span class="st">&quot;Weight (1000 lbs)&quot;</span> =<span class="st"> </span>p_weight)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">cbind</span>(<span class="st">&quot;Miles per gallon&quot;</span> =<span class="st"> </span>p_mpg, </span>
+<span id="cb7-2"><a href="#cb7-2"></a>      <span class="st">&quot;Weight (1000 lbs)&quot;</span> =<span class="st"> </span>p_weight)</span></code></pre></div>
 <table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
 <thead>
 <tr>
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<th style="border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; text-align: center;">
 Variable
 </th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
 Crude
 </th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
 Adjusted
 </th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 Crude
 </th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 Adjusted
 </th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
 </tr>
@@ -1341,17 +1545,17 @@ ref
 <div id="selecting-columnrows-using" class="section level2">
 <h2>Selecting column/rows using <code>[</code></h2>
 <p>It is also possible to select individual rows/columns if so desired using the <code>[</code> operator:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">p_mpg[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>p_mpg[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]</span></code></pre></div>
 <table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
 <thead>
 <tr>
-<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<th style="border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; text-align: center;">
 Variable
 </th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;">
 Coef
 </th>
-<th style="border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
 </tr>
@@ -1430,7 +1634,7 @@ ref
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">p_mpg[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>,]</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>p_mpg[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>,]</span></code></pre></div>
 <table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
 <thead>
 <tr>
@@ -1447,22 +1651,22 @@ Adjusted
 </th>
 </tr>
 <tr>
-<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
+<th style="border-bottom: 1px solid grey; font-weight: 900; text-align: center;">
 Variable
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
 Coef
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
-<th style="border-bottom: 1px solid grey;" colspan="1">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;" colspan="1">
  
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
 Coef
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
 </tr>
@@ -1478,7 +1682,7 @@ Coef
 <td style="text-align: center;">
 17.9 to 22.3
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -1498,7 +1702,7 @@ No. cylinders
 <td style="border-bottom: 2px solid grey; text-align: center;">
 -3.5 to -2.2
 </td>
-<td style="border-bottom: 2px solid grey;" colspan="1">
+<td style="border-bottom: 2px solid grey; text-align: center;" colspan="1">
  
 </td>
 <td style="border-bottom: 2px solid grey; text-align: right;">
@@ -1514,25 +1718,25 @@ No. cylinders
 <div id="more-advanced-models" class="section level2">
 <h2>More advanced models</h2>
 <p>The function is prepared for use with splines and strata but is currently <em>not</em> tested for mixed models. As the spline estimates are best interpreted in a graph they are omitted from the output.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">library</span>(<span class="st">&quot;survival&quot;</span>)</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw">set.seed</span>(<span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb8-4" data-line-number="4">n &lt;-<span class="st"> </span><span class="dv">500</span></a>
-<a class="sourceLine" id="cb8-5" data-line-number="5">ds &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</a>
-<a class="sourceLine" id="cb8-6" data-line-number="6">  <span class="dt">ftime =</span> <span class="kw">rexp</span>(n),</a>
-<a class="sourceLine" id="cb8-7" data-line-number="7">  <span class="dt">fstatus =</span> <span class="kw">sample</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">1</span>, <span class="dt">size =</span> n, <span class="dt">replace =</span> <span class="ot">TRUE</span>),</a>
-<a class="sourceLine" id="cb8-8" data-line-number="8">  <span class="dt">y =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> n),</a>
-<a class="sourceLine" id="cb8-9" data-line-number="9">  <span class="dt">x1 =</span> <span class="kw">factor</span>(<span class="kw">sample</span>(LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>], <span class="dt">size =</span> n, <span class="dt">replace =</span> <span class="ot">TRUE</span>)),</a>
-<a class="sourceLine" id="cb8-10" data-line-number="10">  <span class="dt">x2 =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="dv">3</span>, <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb8-11" data-line-number="11">  <span class="dt">x3 =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="dv">3</span>, <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb8-12" data-line-number="12">  <span class="dt">x4 =</span> <span class="kw">factor</span>(<span class="kw">sample</span>(letters[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>], <span class="dt">size =</span> n, <span class="dt">replace =</span> <span class="ot">TRUE</span>)),</a>
-<a class="sourceLine" id="cb8-13" data-line-number="13">  <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb8-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb8-15" data-line-number="15"><span class="kw">library</span>(survival)</a>
-<a class="sourceLine" id="cb8-16" data-line-number="16"><span class="kw">library</span>(splines)</a>
-<a class="sourceLine" id="cb8-17" data-line-number="17">fit &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(ds<span class="op">$</span>ftime, ds<span class="op">$</span>fstatus <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) <span class="op">~</span><span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span><span class="kw">ns</span>(x2, <span class="dv">4</span>) <span class="op">+</span><span class="st"> </span>x3 <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(x4), <span class="dt">data=</span>ds)</a>
-<a class="sourceLine" id="cb8-18" data-line-number="18"></a>
-<a class="sourceLine" id="cb8-19" data-line-number="19"><span class="kw">printCrudeAndAdjustedModel</span>(fit, <span class="dt">add_references =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">library</span>(<span class="st">&quot;survival&quot;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2"></a></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb10-4"><a href="#cb10-4"></a>n &lt;-<span class="st"> </span><span class="dv">500</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>ds &lt;-<span class="st"> </span><span class="kw">data.frame</span>(</span>
+<span id="cb10-6"><a href="#cb10-6"></a>  <span class="dt">ftime =</span> <span class="kw">rexp</span>(n),</span>
+<span id="cb10-7"><a href="#cb10-7"></a>  <span class="dt">fstatus =</span> <span class="kw">sample</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">1</span>, <span class="dt">size =</span> n, <span class="dt">replace =</span> <span class="ot">TRUE</span>),</span>
+<span id="cb10-8"><a href="#cb10-8"></a>  <span class="dt">y =</span> <span class="kw">rnorm</span>(<span class="dt">n =</span> n),</span>
+<span id="cb10-9"><a href="#cb10-9"></a>  <span class="dt">x1 =</span> <span class="kw">factor</span>(<span class="kw">sample</span>(LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>], <span class="dt">size =</span> n, <span class="dt">replace =</span> <span class="ot">TRUE</span>)),</span>
+<span id="cb10-10"><a href="#cb10-10"></a>  <span class="dt">x2 =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="dv">3</span>, <span class="dv">2</span>),</span>
+<span id="cb10-11"><a href="#cb10-11"></a>  <span class="dt">x3 =</span> <span class="kw">rnorm</span>(n, <span class="dt">mean =</span> <span class="dv">3</span>, <span class="dv">2</span>),</span>
+<span id="cb10-12"><a href="#cb10-12"></a>  <span class="dt">x4 =</span> <span class="kw">factor</span>(<span class="kw">sample</span>(letters[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>], <span class="dt">size =</span> n, <span class="dt">replace =</span> <span class="ot">TRUE</span>)),</span>
+<span id="cb10-13"><a href="#cb10-13"></a>  <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb10-14"><a href="#cb10-14"></a></span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="kw">library</span>(survival)</span>
+<span id="cb10-16"><a href="#cb10-16"></a><span class="kw">library</span>(splines)</span>
+<span id="cb10-17"><a href="#cb10-17"></a>fit &lt;-<span class="st"> </span><span class="kw">coxph</span>(<span class="kw">Surv</span>(ds<span class="op">$</span>ftime, ds<span class="op">$</span>fstatus <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) <span class="op">~</span><span class="st"> </span>x1 <span class="op">+</span><span class="st"> </span><span class="kw">ns</span>(x2, <span class="dv">4</span>) <span class="op">+</span><span class="st"> </span>x3 <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(x4), <span class="dt">data =</span> ds)</span>
+<span id="cb10-18"><a href="#cb10-18"></a></span>
+<span id="cb10-19"><a href="#cb10-19"></a><span class="kw">printCrudeAndAdjustedModel</span>(fit, <span class="dt">add_references =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
 <table class="gmisc_table" style="border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;">
 <thead>
 <tr>
@@ -1549,22 +1753,22 @@ Adjusted
 </th>
 </tr>
 <tr>
-<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
+<th style="border-bottom: 1px solid grey; font-weight: 900; text-align: center;">
 Variable
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
 HR
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
-<th style="border-bottom: 1px solid grey;" colspan="1">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;" colspan="1">
  
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: right;">
 HR
 </th>
-<th style="border-bottom: 1px solid grey; text-align: center;">
+<th style="font-weight: 900; border-bottom: 1px solid grey; text-align: center;">
 2.5 % to 97.5 %
 </th>
 </tr>
@@ -1585,7 +1789,7 @@ x1
 <td style="text-align: center;">
 ref
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -1605,7 +1809,7 @@ ref
 <td style="text-align: center;">
 0.60 to 1.21
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -1625,7 +1829,7 @@ ref
 <td style="text-align: center;">
 0.56 to 1.09
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -1645,7 +1849,7 @@ ref
 <td style="text-align: center;">
 0.86 to 1.74
 </td>
-<td style colspan="1">
+<td style="text-align: center;" colspan="1">
  
 </td>
 <td style="text-align: right;">
@@ -1665,7 +1869,7 @@ x3
 <td style="border-bottom: 2px solid grey; text-align: center;">
 0.94 to 1.07
 </td>
-<td style="border-bottom: 2px solid grey;" colspan="1">
+<td style="border-bottom: 2px solid grey; text-align: center;" colspan="1">
  
 </td>
 <td style="border-bottom: 2px solid grey; text-align: right;">
@@ -1677,11 +1881,9 @@ x3
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="co"># Note that the crude is with the strata</span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">a &lt;-<span class="st"> </span><span class="kw">getCrudeAndAdjustedModelData</span>(fit)</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3">a[<span class="st">&quot;x3&quot;</span>, <span class="st">&quot;Crude&quot;</span>] <span class="op">==</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="st">  </span><span class="kw">exp</span>(<span class="kw">coef</span>(<span class="kw">coxph</span>(<span class="kw">Surv</span>(ds<span class="op">$</span>ftime, ds<span class="op">$</span>fstatus <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) <span class="op">~</span><span class="st"> </span>x3 <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb9-5" data-line-number="5"><span class="st">                   </span><span class="kw">strata</span>(x4), <span class="dt">data=</span>ds)))</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># Note that the crude is with the strata</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>a &lt;-<span class="st"> </span><span class="kw">getCrudeAndAdjustedModelData</span>(fit)</span>
+<span id="cb11-3"><a href="#cb11-3"></a>a[<span class="st">&quot;x3&quot;</span>, <span class="st">&quot;Crude&quot;</span>] <span class="op">==</span><span class="st"> </span><span class="kw">exp</span>(<span class="kw">coef</span>(<span class="kw">coxph</span>(<span class="kw">Surv</span>(ds<span class="op">$</span>ftime, ds<span class="op">$</span>fstatus <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) <span class="op">~</span><span class="st"> </span>x3 <span class="op">+</span><span class="st"> </span><span class="kw">strata</span>(x4), <span class="dt">data =</span> ds)))</span></code></pre></div>
 <pre><code>##   x3 
 ## TRUE</code></pre>
 </div>
