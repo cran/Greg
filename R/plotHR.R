@@ -137,7 +137,7 @@ plotHR <- function(models,
   # If the user wants to compare different models the same graph
   # the first dataset is then choosen as the default dataset
   # for getting the rug data.
-  if (length(class(models)) != 1 || class(models) != "list") {
+  if (length(class(models)) != 1 || !inherits(models, "list")) {
     models <- list(models)
   }
 
@@ -160,9 +160,7 @@ plotHR <- function(models,
   par(las = 1, cex = cex)
 
   # Get the term number and it's label
-  all.labels <- prGetModelVariables(models[[1]],
-    remove_splines = FALSE
-  )
+  all.labels <- prGetModelVariables(models[[1]], remove_splines = FALSE)
 
   # Allow the term searched for be a string
   if (is.character(term)) {
@@ -292,6 +290,9 @@ plotHR <- function(models,
                  xlab = xlab, 
                  ylab = ylab,
                  ylog = ylog,
+                 xlim = xlim,
+                 ylim = ylim,
+                 plot.bty = plot.bty,
                  col.dens = col.dens,
                  quantiles = quantiles,
                  rug = rug,
@@ -321,6 +322,8 @@ plot.plotHR <- function(x, y, ...) {
     xlab = x$xlab,
     ylab = x$ylab,
     main = x$main,
+    xaxs = "i",
+    yaxs = "i",
     type = "n",
     axes = FALSE,
     ...
@@ -339,8 +342,8 @@ plot.plotHR <- function(x, y, ...) {
       )
     }
   }
-  
-  if (x$rug == "density") {
+
+    if (x$rug == "density") {
     prPhDensityPlot(x$xvalues_4_density,
                     color = x$col.dens
     )
@@ -362,7 +365,6 @@ plot.plotHR <- function(x, y, ...) {
   if (x$rug == "ticks") {
     prPhRugPlot(xvalues = x$xvalues_4_density)
   }
-  
   
   # Plot the last fit on top, therefore use the reverse
   for (i in length(x$models):1) {

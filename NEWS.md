@@ -1,5 +1,11 @@
 NEWS for the **Greg** package
 
+Changes for 1.4.1
+-----------------
+* Fix for updated survival package with a more consistent naming (3.4-0)
+* Fix for plotHR axes & bty and improved example with dplyr syntax
+* Fix for bad offset() handling, was ignored in getCrudeAndAdjusted unless presented as an `offset=` parameter.
+
 Changes for 1.4.0
 -----------------
 * The plotHR has now a more elegant `plot` S3-function separating the preparing of the plot and the actual output (*Note*: if called within a loop you now need to call `print`/`plot` on the returned object)
