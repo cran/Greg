@@ -7,8 +7,8 @@ library(Greg)
 printCrudeAndAdjustedModel(fit)
 
 ## -----------------------------------------------------------------------------
-printCrudeAndAdjustedModel(fit, 
-                           digits = 1, 
+printCrudeAndAdjustedModel(fit,
+                           digits = 1,
                            add_references = TRUE,
                            rowname.fn = function(n){
   if (n == "disp")
@@ -29,16 +29,16 @@ label(mtcars$cyl) <- "No. cylinders"
 label(mtcars$hp) <- "Gross horsepower"
 label(mtcars$am) <- "Transmission"
 
-printCrudeAndAdjustedModel(fit, 
-                           digits = 1, 
+printCrudeAndAdjustedModel(fit,
+                           digits = 1,
                            add_references = TRUE)
 
 ## ----styling_with_addHtmlTableStyle-------------------------------------------
 library(htmlTable)
 
-printCrudeAndAdjustedModel(fit, 
-                           digits = 1, 
-                           add_references = TRUE) %>% 
+printCrudeAndAdjustedModel(fit,
+                           digits = 1,
+                           add_references = TRUE) |>
   # We can also style the output as shown here
   addHtmlTableStyle(css.rgroup = "")
 
@@ -50,10 +50,10 @@ fit_mpg <- lm(mpg ~ cyl + disp + hp + am, data = mtcars)
 fit_weight <- lm(wt ~ cyl + disp + hp + am, data = mtcars)
 p_mpg <- printCrudeAndAdjustedModel(fit_mpg, digits = 1, add_references = TRUE)
 p_weight <- printCrudeAndAdjustedModel(fit_weight, digits = 1, add_references = TRUE)
-rbind("Miles per gallon" = p_mpg, 
+rbind("Miles per gallon" = p_mpg,
       "Weight (1000 lbs)" = p_weight)
 
-cbind("Miles per gallon" = p_mpg, 
+cbind("Miles per gallon" = p_mpg,
       "Weight (1000 lbs)" = p_weight)
 
 

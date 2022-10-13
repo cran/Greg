@@ -34,7 +34,7 @@
 #'
 #' @example inst/examples/addNonlinearity_example.R
 #' @rdname addNonlinearity
-#' @import stats
+#' @importFrom stats AIC update
 #' @export
 addNonlinearity <-
   function(model,
@@ -118,7 +118,7 @@ addNonlinearity.glm <- function(model,
 
   pvalue_column <- grep("Pr(", names(anova_rslt), fixed = TRUE)
   stopifnot(length(pvalue_column) == 1)
-  
+
   # No evidence for non-linearity
   if (tail(anova_rslt[pvalue_column], 1) > sig_level) {
     return(model)
@@ -314,8 +314,7 @@ prNlChooseDf <- function(model,
     # Load libraries necessary into the workers
     if (!missing(libraries)) {
       for (l in libraries) {
-        tmp <- sprintf("clusterEvalQ(workers, library(%s))", l) %>%
-          parse(text = .) %>%
+        tmp <- parse(text = sprintf("clusterEvalQ(workers, library(%s))", l)) |>
           eval()
       }
     }
