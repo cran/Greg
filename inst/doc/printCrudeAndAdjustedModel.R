@@ -1,4 +1,4 @@
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 library(datasets)
 data(mtcars)
 mtcars$am <- factor(mtcars$am, labels = c("Automatic", "Manual"))
@@ -22,7 +22,7 @@ printCrudeAndAdjustedModel(fit,
   return(n)
 })
 
-## ---- message=FALSE-----------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 library(Hmisc)
 label(mtcars$disp) <- "Displacement (cu.in)"
 label(mtcars$cyl) <- "No. cylinders"
